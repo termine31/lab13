@@ -2,14 +2,15 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
-
+#include <iomanip>
+#include <string>
 using namespace std;
 
-const float eps = 0.000001;
+const double eps = 0.000001;
 
 
 
-int gaus(int M, int N, float** A, float* X) {
+int gaus(int M, int N, double** A, double* X) {
 // Элементарные преобразования
 // 1) Перестановка строк(уравн) и столбцов(переменных)
 // 2)  Вычитание из i строки k строки, умноженной на с
@@ -94,7 +95,7 @@ int gaus(int M, int N, float** A, float* X) {
         // 1р 
         for (int j = 0; j < N; j++) {
             for (int k = 0; k < r; k++) {
-                if (fabs(A[k][j]) - 1.0 < eps) {
+                if (fabs(A[k][j] - 1.0) < eps) {
                     X[L[j]] = A[k][N];
                     break;
                 }
@@ -104,8 +105,30 @@ int gaus(int M, int N, float** A, float* X) {
         return 1;
     }
 
+    // бесконечно много решений
+    for (j = r; j < N; j++) X[L[j]] = 0; // свободным переменным == 0 
 
-
+    for (int j = 0; j < r; j++) {
+        // вычисление зависимых переменных
+        for (int k = 0; k < r; k++) {
+            int col = -1;
+            for (int t = 0; t < N; t++) {
+                if (fabs(A[k][t] - 1.0) < eps) { // нахождение 1 в матрице
+                    col = t;
+                    break;
+                }
+            }
+            if (col == L[j]) { // сопоставляем найденный столбец зависимой пер
+                X[L[j]] = A[k][N]; // св.член
+                for (int t = r; t < N; t++) {
+                    X[L[j]] -= A[k][t] * X[L[t]];
+                }
+                break;
+        }
+        }
+    }
+    delete[] L;
+    return 2;
 }
 
 
@@ -113,11 +136,65 @@ int gaus(int M, int N, float** A, float* X) {
 
 int main()
 {
-    
+    int testnum;
+    cout << "Введите номер теста: ";
+    cin >> testnum;
+
+    string inpfile = "test" + to_string(testnum) + ".txt";
+    string outfile = "result" + to_string(testnum) + ".txt";
+
+    ifstream fin(inpfile);
+    ofstream fout(outfile);
+
+    int m, n;
+    fin >> m >> n;
+
+    // Выделение памяти
+    double** A = new double* [m];
+    for (int i = 0; i < m; i++) {
+        A[i] = new double[n + 1];
+        for (int j = 0; j <= n; j++) {
+            fin >> A[i][j];
+        }
+    }
+
+    double* X = new double[n];
+
+    // Решение
+    int res = gaus(m, n, A, X);
+
+    // Вывод результата
+    fout << fixed << setprecision(6);
+
+    if (res == 0) {
+        fout << "Система не имеет решений" << endl;
+    }
+    else if (res == 1) {
+        for (int i = 0; i < n; i++) {
+            fout << "x" << i + 1 << " = " << X[i];
+            if (i < n - 1) fout << "; ";
+        }
+        fout << endl;
+    }
+    else {
+        fout << "Система имеет бесконечно много решений" << endl;
+        for (int i = 0; i < n; i++) {
+            fout << "x" << i + 1 << " = " << X[i];
+            if (i < n - 1) fout << "; ";
+        }
 
 
+    }
+    for (int i = 0; i < m; i++) {
+        delete[] A[i];
+    }
+    delete[] A;
+    delete[] X;
 
+    fin.close();
+    fout.close();
 
+    return 0;
 
 }
 
