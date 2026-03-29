@@ -61,7 +61,27 @@ int gaus(int M, int N, float** A, float* X) {
             L[i] = L[u];
             L[u] = p;
         }
+        
 
+
+
+        // деление строк 
+        c = A[r][i];
+        for (j = i; j <= N; j++) {
+            A[r][j] /= c;
+        }
+
+        // Вычитание стлбцов
+        for (int k = 0; k < M; k++) {
+            if (k != r) {
+                c = A[k][i];
+                for (j = i; j <= N; j++) {
+                    A[k][j] -= c * A[r][j];
+                }
+            }
+
+        }
+        r++;
     }
 
 
