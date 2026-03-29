@@ -26,7 +26,7 @@ int gaus(int M, int N, float** A, float* X) {
     for (int i = 0; i < N && r < M; i++) {
         v = r; u = i; 
 
-        for (int j = r; j < M; j++) {
+        for (j = r; j < M; j++) {
             for (int k = i; k < N; k++) {
                 if (fabs(A[j][k]) > fabs(A[v][u])) {
                     v = j;
@@ -39,6 +39,29 @@ int gaus(int M, int N, float** A, float* X) {
             //не найден
             continue;
         }
+
+        // перестановка строк
+        if (v != r) {
+            for (j = i; j <= N; j++) {
+                z = A[r][j];
+                A[r][j] = A[v][j];
+                A[v][j] = z;
+            }
+        }
+
+        // перестановка столбцов
+        if (u != i) {
+            for (int k = 0; k < M; k++) {
+                z = A[k][i];
+                A[k][i] = A[k][u];
+                A[k][u] = z;
+            }
+            // меняем индексы переменных
+            int p = L[i];
+            L[i] = L[u];
+            L[u] = p;
+        }
+
     }
 
 
