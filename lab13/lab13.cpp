@@ -62,9 +62,6 @@ int gaus(int M, int N, float** A, float* X) {
             L[u] = p;
         }
         
-
-
-
         // деление строк 
         c = A[r][i];
         for (j = i; j <= N; j++) {
@@ -83,6 +80,30 @@ int gaus(int M, int N, float** A, float* X) {
         }
         r++;
     }
+
+    i = r;
+    while (i < M && fabs(A[i][N]) < eps) i++;
+
+    if (i < M) {
+        // нет решений
+        delete[] L;
+        return 0;
+    }
+
+    if (r == N ) {
+        // 1р 
+        for (int j = 0; j < N; j++) {
+            for (int k = 0; k < r; k++) {
+                if (fabs(A[k][j]) - 1.0 < eps) {
+                    X[L[j]] = A[k][N];
+                    break;
+                }
+            }
+        }
+        delete[] L;
+        return 1;
+    }
+
 
 
 }
